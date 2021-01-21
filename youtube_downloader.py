@@ -1,18 +1,46 @@
+import sys
 from pytube import YouTube
+from PyQt5.QtWidgets import *
 
-#ask for the link from user
-link = input("Enter the link of YouTube video you want to download:  ")
-yt = YouTube(link)
+def start_downloading():
+    if not url.text():
+        alert = QMessageBox()
+        alert.setText("No url provided")
+        alert.exec_()
+    else:
+        try:
+            yt = YouTube(url.text())
+        except Exception as e:
+            alert = QMessageBox()
+            alert.setText("Invalid url provided")
+            url.clear()
+            alert.exec_()
+        else:
+            ys = yt.streams.get_highest_resolution()
+            ys.download('./Videos')
+            url.clear()
 
-#Showing details
-print("Title: ",yt.title)
-print("Number of views: ",yt.views)
-print("Length of video: ",yt.length)
-print("Rating of video: ",yt.rating)
-#Getting the highest resolution possible
-ys = yt.streams.get_highest_resolution()
 
-#Starting download
-print("Downloading...")
-ys.download('./Videos')
-print("Download completed!!")
+app = QApplication([])
+window = QWidget()
+window.setWindowTitle("YouTube Downloader")
+window.setGeometry(100, 100, 280, 80)
+
+layout = QVBoxLayout()
+prompt = QLabel("Enter the link of YouTube video you want to download below:")
+layout.addWidget(prompt)
+
+url = QLineEdit()
+layout.addWidget(url)
+
+download_button = QPushButton('Download')
+download_button.clicked.connect(start_downloading)
+layout.addWidget(download_button)
+
+window.setLayout(layout)
+window.show()
+
+sys.exit(app.exec_())
+
+
+
